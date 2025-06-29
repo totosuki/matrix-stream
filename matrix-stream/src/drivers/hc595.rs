@@ -1,5 +1,7 @@
 use std::{
-    io::Result, process::Output, thread, time::{Duration, Instant}
+    io::Result,
+    thread,
+    time::Duration,
 };
 
 use rppal::gpio::{Gpio, OutputPin};
@@ -18,17 +20,6 @@ impl Hc595 {
             rclk: Self::get_outputpin(rclk_num, &gpio),
             srclk: Self::get_outputpin(srclk, &gpio),
         }
-    }
-
-    pub fn write(&mut self, bit: u8) -> Result<()> {
-        if bit == 1 {
-            self.ser.set_high();
-        }
-        else {
-            self.ser.set_low();
-        }
-        Self::positive_edge(&mut self.srclk)?;
-        Ok(())
     }
 
     pub fn latch(&mut self) -> Result<()> {
@@ -50,6 +41,14 @@ impl Hc595 {
         Ok(())
     }
 
+    pub fn write(&mut self, data: u16) -> Result<()> {
+        for i in 0..16 {
+            let bit = (data >> i) & 1;
+            self.shift(bit != 0)?;
+        }
+        Ok(())
+    }
+
     fn get_outputpin(num: u8, gpio: &Gpio) -> OutputPin {
         let pin = gpio.get(num).unwrap();
         pin.into_output()
@@ -59,6 +58,17 @@ impl Hc595 {
         pin.set_high();
         thread::sleep(Duration::from_millis(1));
         pin.set_low();
+        Ok(())
+    }
+
+    fn shift(&mut self, bit: bool) -> Result<()> {
+        if bit {
+            self.ser.set_high();
+        }
+        else {
+            self.ser.set_low();
+        }
+        Self::positive_edge(&mut self.srclk)?;
         Ok(())
     }
 }
