@@ -1,61 +1,23 @@
 use std::{
     io::Result,
-    time::{Duration, Instant},
-    thread,
+    time::{Duration, Instant}
 };
 
-use rppal::gpio::{Gpio, OutputPin};
+use matrix_stream::drivers::osl641505::Osl641505;
 
 fn main() -> Result<()> {
-    let gpio = Gpio::new().unwrap();
-    let mut ser = get_outputpin(25, &gpio);
-    let mut rclk = get_outputpin(24, &gpio);
-    let mut srclk = get_outputpin(23, &gpio);
-    let duration = Duration::from_secs(10);
-    let data = 0b10111111_01000000;
+    println!("[display] start");
+
+    let mut led = Osl641505::new(25, 24, 23,100);
+    let data = 0b11111111_11111111_11111111_11111111_11111111_11111111_11111111_11111111;
 
     let start = Instant::now();
-    while start.elapsed() < duration {
-        for i in 0..16 {
-            write(data >> i & 1, &mut ser, &mut srclk);
-        }
 
-        positive_edge(&mut rclk);
-        thread::sleep(Duration::from_millis(100));
+    while start.elapsed() < Duration::from_secs(100) {
+        led.draw(&data)?;
     }
 
-    reset(&mut ser, &mut srclk, &mut rclk);
+    led.reset()?;
 
     Ok(())
-}
-
-fn get_outputpin(num: u8, gpio: &Gpio) -> OutputPin {
-    let pin = gpio.get(num).unwrap();
-    pin.into_output()
-}
-
-fn reset(ser: &mut OutputPin, srclk: &mut OutputPin, rclk: &mut OutputPin) {
-    let data = 0b00000000_00000000;
-    for i in 0..16 {
-        write(data >> i & 1, ser, srclk);
-    }
-    positive_edge(rclk);
-    ser.set_low();
-    srclk.set_low();
-    rclk.set_low();
-}
-
-fn write(bit: i32, ser: &mut OutputPin, srclk: &mut OutputPin) {
-    if bit == 1 {
-        ser.set_high();
-    }
-    else {
-        ser.set_low();
-    }
-    positive_edge(srclk);
-}
-
-fn positive_edge(pin: &mut OutputPin) {
-    pin.set_high();
-    pin.set_low();
 }
