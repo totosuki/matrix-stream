@@ -11,7 +11,7 @@ fn main() -> Result<()> {
     let mut rclk = get_outputpin(24);
     let mut srclk = get_outputpin(23);
     let five_sec = time::Duration::from_secs(5);
-    let data = 0b1111111111111110;
+    let data = 0b00000000_00000000;
 
     for i in 0..16 {
         write(data >> i & 1, &mut ser, &mut srclk);
