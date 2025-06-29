@@ -6,6 +6,8 @@ use std::{
 
 use rppal::gpio::{Gpio, OutputPin};
 
+use crate::Level;
+
 pub struct Hc595 {
     ser: OutputPin,
     rclk: OutputPin,
@@ -27,8 +29,8 @@ impl Hc595 {
         Ok(())
     }
 
-    pub fn reset(&mut self, is_low: bool) -> Result<()> {
-        let bit = if is_low { 0 } else { 1 };
+    pub fn reset(&mut self, level: Level) -> Result<()> {
+        let bit = if level == Level::High {1} else {0};
 
         for _ in 0..16 {
             self.write(bit)?;
@@ -44,7 +46,7 @@ impl Hc595 {
     pub fn write(&mut self, data: u16) -> Result<()> {
         for i in 0..16 {
             let bit = (data >> i) & 1;
-            self.shift(bit != 0)?;
+            self.shift(if bit == 1 {Level::High} else {Level::Low})?;
         }
         Ok(())
     }
@@ -61,8 +63,8 @@ impl Hc595 {
         Ok(())
     }
 
-    fn shift(&mut self, bit: bool) -> Result<()> {
-        if bit {
+    fn shift(&mut self, level: Level) -> Result<()> {
+        if level == Level::High {
             self.ser.set_high();
         }
         else {
