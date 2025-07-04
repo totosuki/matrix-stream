@@ -3,5 +3,9 @@ name = "matrix-stream"
 version = "0.1.0"
 edition = "2024"
 
+[features]
+default = []
+raspberry_pi = ["rppal"]
+
 [dependencies]
-rppal = "0.22.1"
+rppal = { version = "0.22.1", optional = true }

@@ -1,3 +1,4 @@
+#[cfg(feature = "raspberry_pi")]
 pub mod drivers;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
