@@ -38,15 +38,15 @@ fn start_server(bind_addr: &str, port: u16) -> Result<()> {
 fn handle_client(stream: TcpStream) -> Result<()> {
     let reader = BufReader::new(stream);
     // let display_controller = DisplayController::new(25, 24, 23, 100);
-    
+
     for line in reader.lines() {
         let data = line.expect("Failed to read line");
         let data = data.trim().to_string();
         println!("[receiver] New data: {}", data);
 
         match DisplayController::display(data) {
-            Ok(()) => {},
-            Err(e) => eprintln!("{}", e)
+            Ok(()) => {}
+            Err(e) => eprintln!("{}", e),
         };
     }
 
