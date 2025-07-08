@@ -1,6 +1,8 @@
 use std::{
     io::{BufRead, BufReader, Result},
     net::{TcpListener, TcpStream},
+    thread,
+    sync::{Arc, Mutex},
 };
 
 use matrix_stream::display_controller::DisplayController;
@@ -37,17 +39,15 @@ fn start_server(bind_addr: &str, port: u16) -> Result<()> {
 
 fn handle_client(stream: TcpStream) -> Result<()> {
     let reader = BufReader::new(stream);
-    // let display_controller = DisplayController::new(25, 24, 23, 100);
+    let shared_data = Arc::new(Mutex::new("0".repeat(64).to_string()));
+
+    DisplayController::display(25, 24, 23, 10, shared_data.clone());
 
     for line in reader.lines() {
-        let data = line.expect("Failed to read line");
-        let data = data.trim().to_string();
-        println!("[receiver] New data: {}", data);
-
-        match DisplayController::display(data) {
-            Ok(()) => {}
-            Err(e) => eprintln!("{}", e),
-        };
+        let line = line.expect("Failed to read line");
+        let mut data = shared_data.lock().unwrap();
+        *data = line.trim().to_string();
+        println!("[receiver] New data: {}", *data);
     }
 
     println!("[receiver] Client disconnected");
