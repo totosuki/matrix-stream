@@ -1,11 +1,9 @@
 use std::{
     io::{BufRead, BufReader, Result},
     net::{TcpListener, TcpStream},
-    thread,
-    sync::{Arc, Mutex},
 };
 
-use matrix_stream::display_controller::DisplayController;
+use matrix_stream::display_controller::{self, DisplayController};
 
 fn main() -> Result<()> {
     println!("[receiver] start");
@@ -26,7 +24,9 @@ fn start_server(bind_addr: &str, port: u16) -> Result<()> {
         match stream {
             Ok(stream) => {
                 println!("[receiver] New connection: {}", stream.peer_addr()?);
-                handle_client(stream);
+               if let Err(e) = handle_client(stream) {
+                    eprintln!("[receiver] Client handling error: {}", e);
+                }
             }
             Err(e) => {
                 eprintln!("[receiver] Connection failed: {}", e);
@@ -39,18 +39,20 @@ fn start_server(bind_addr: &str, port: u16) -> Result<()> {
 
 fn handle_client(stream: TcpStream) -> Result<()> {
     let reader = BufReader::new(stream);
-    let shared_data = Arc::new(Mutex::new("0".repeat(64).to_string()));
-
-    DisplayController::display(25, 24, 23, 10, shared_data.clone());
+    let mut display_controller = DisplayController::new();
+    display_controller.start(25, 24, 23, 10)?;
 
     for line in reader.lines() {
-        let line = line.expect("Failed to read line");
-        let mut data = shared_data.lock().unwrap();
-        *data = line.trim().to_string();
-        println!("[receiver] New data: {}", *data);
+        let line = line?;
+        if let Err(e) = display_controller.update_data(line) {
+            eprintln!("[receiver] Failed to update display data: {}", e);
+            continue;
+        }
     }
 
     println!("[receiver] Client disconnected");
+
+    display_controller.stop()?;
 
     Ok(())
 }
