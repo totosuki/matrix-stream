@@ -58,7 +58,7 @@ impl Hc595 {
 
     fn positive_edge(pin: &mut OutputPin) -> Result<()> {
         pin.set_high();
-        thread::sleep(Duration::from_millis(1));
+        thread::sleep(Duration::from_micros(1));
         pin.set_low();
         Ok(())
     }
