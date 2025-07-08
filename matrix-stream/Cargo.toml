@@ -9,3 +9,4 @@ raspi = ["rppal"]
 
 [dependencies]
 rppal = { version = "0.22.1", optional = true }
+image = { version = "0.25.6" }
