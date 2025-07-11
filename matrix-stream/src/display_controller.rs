@@ -4,12 +4,14 @@ use std::{
     sync::{Arc, Mutex},
 };
 
+#[cfg(feature = "raspi")]
 use crate::drivers::osl641505::Osl641505;
 use crate::protocol::ProtocolParser;
 
 pub struct DisplayController;
 
 impl DisplayController {
+    #[cfg(feature = "raspi")]
     pub fn display(
         data_pin: u8,
         latch_pin: u8,
