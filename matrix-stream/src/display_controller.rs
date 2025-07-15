@@ -106,7 +106,7 @@ impl DisplayController {
         if let Some(handle) = self.thread_handle.take() {
             match handle.join() {
                 Ok(_) => println!("[DisplayController] Display thread joined successfully"),
-                rr(e) => eprintln!("[DisplayController] Failed to join display thread: {:?}", e),
+                Err(e) => eprintln!("[DisplayController] Failed to join display thread: {:?}", e),
             }
         }
 
