@@ -27,7 +27,7 @@ impl ProtocolParser {
         let parse_data = u64::from_str_radix(&data[..], 2);
         match parse_data {
             Ok(parse_data) => Some(parse_data),
-            Err(e) => None
+            Err(_) => None
         }
     }
 }

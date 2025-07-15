@@ -8,7 +8,7 @@ use matrix_stream::display_controller::{self, DisplayController};
 fn main() -> Result<()> {
     println!("[receiver] start");
 
-    start_server("localhost", 8080)?;
+    start_server("0.0.0.0", 8080)?;
 
     println!("[receiver] stop");
     Ok(())
