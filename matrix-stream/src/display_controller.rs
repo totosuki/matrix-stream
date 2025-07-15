@@ -5,6 +5,7 @@ use std::{
     time::Duration,
 };
 
+#[cfg(feature = "raspi")]
 use crate::drivers::osl641505::Osl641505;
 use crate::protocol::ProtocolParser;
 

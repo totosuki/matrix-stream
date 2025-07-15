@@ -47,7 +47,7 @@ impl Osl641505 {
     }
 
     fn display_row(&mut self, row: u8, col_data: u8) -> Result<()> {
-        let row_bits = 1u8 << row;
+        let row_bits = 1u8 << (7 - row);
         let col_bits = !col_data; // 列データは0が点灯
 
         let control_data = ((col_bits as u16) << 8) | (row_bits as u16);
